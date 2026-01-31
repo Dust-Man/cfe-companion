@@ -1,0 +1,105 @@
+{% extends "energy/base.html" %}
+
+{% block title %}Inicio - Asistente de Consumo Eléctrico{% endblock %}
+
+{% block content %}
+<div class="text-center py-12">
+    <!-- Hero -->
+    <div class="mb-12">
+        <div class="w-24 h-24 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">
+            Asistente de Consumo Eléctrico
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Analiza tu recibo de CFE y descubre cómo reducir tu consumo y ahorrar dinero.
+        </p>
+    </div>
+    
+    <!-- Main CTA -->
+    <div class="mb-8">
+        <a href="/new/" 
+           class="inline-flex items-center px-8 py-4 bg-green-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-green-700 transition-colors">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Analizar mi recibo
+        </a>
+        <p class="mt-3 text-sm text-gray-500">
+            Ingresa tus datos manualmente en menos de 2 minutos
+        </p>
+    </div>
+    
+    <!-- Demo Section -->
+    {% if has_demos %}
+    <div class="bg-gray-100 rounded-xl p-6 max-w-xl mx-auto">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">
+            🎯 Modo Demo - Ver ejemplos
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for demo in demo_bills %}
+            <a href="/demo/{{ demo.id }}/" 
+               class="block p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-green-500 transition-colors text-left">
+                <div class="font-semibold text-gray-800">
+                    Ejemplo {{ forloop.counter }}
+                </div>
+                <div class="text-sm text-gray-600 mt-1">
+                    {{ demo.consumo_kwh }} kWh · Tarifa {{ demo.tarifa }}
+                </div>
+                <div class="text-xs text-gray-400 mt-2">
+                    Click para ver análisis →
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Features -->
+    <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-gray-800 mb-2">Costo estimado</h3>
+            <p class="text-gray-600 text-sm">
+                Calcula cuánto pagas por categoría de consumo según las tarifas de CFE.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-gray-800 mb-2">Huella de carbono</h3>
+            <p class="text-gray-600 text-sm">
+                Conoce las emisiones de CO₂ asociadas a tu consumo eléctrico.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-gray-800 mb-2">Recomendaciones</h3>
+            <p class="text-gray-600 text-sm">
+                Recibe consejos personalizados para reducir tu consumo y ahorrar.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

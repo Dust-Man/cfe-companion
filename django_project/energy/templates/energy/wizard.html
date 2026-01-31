@@ -1,0 +1,28 @@
+{% extends "energy/base.html" %}
+
+{% block title %}Paso {{ step }} - Asistente de Consumo Eléctrico{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Progress Bar -->
+    <div class="mb-8">
+        <div class="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Paso {{ step }} de {{ total_steps }}</span>
+            <span>{% if step == 1 %}Datos del recibo{% elif step == 2 %}Cuestionario{% else %}Resultados{% endif %}</span>
+        </div>
+        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-green-500 transition-all duration-300" 
+                 style="width: {% widthratio step total_steps 100 %}%"></div>
+        </div>
+    </div>
+    
+    <!-- Wizard Container -->
+    <div id="wizard" class="bg-white rounded-xl shadow-sm p-6 md:p-8">
+        {% if step == 1 %}
+            {% include "energy/partials/bill_form.html" %}
+        {% elif step == 2 %}
+            {% include "energy/partials/survey_form.html" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

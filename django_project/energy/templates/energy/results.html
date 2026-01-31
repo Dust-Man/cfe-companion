@@ -1,0 +1,239 @@
+{% extends "energy/base.html" %}
+
+{% block title %}Resultados - Asistente de Consumo Eléctrico{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">📊 Resultados del Análisis</h1>
+        <p class="text-gray-600">
+            Periodo: {{ bill.periodo_inicio|date:"d/m/Y" }} - {{ bill.periodo_fin|date:"d/m/Y" }}
+            · Tarifa {{ bill.tarifa }}
+        </p>
+        
+        <!-- Confidence Badge -->
+        <div class="mt-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                {% if analysis.confianza_global == 'high' %}bg-green-100 text-green-800
+                {% elif analysis.confianza_global == 'medium' %}bg-yellow-100 text-yellow-800
+                {% else %}bg-red-100 text-red-800{% endif %}">
+                Confianza: 
+                {% if analysis.confianza_global == 'high' %}Alta
+                {% elif analysis.confianza_global == 'medium' %}Media
+                {% else %}Baja{% endif %}
+            </span>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <!-- Consumo -->
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <div class="text-4xl mb-2">⚡</div>
+            <div class="text-3xl font-bold text-gray-800">{{ bill.consumo_kwh }}</div>
+            <div class="text-gray-500">kWh consumidos</div>
+        </div>
+        
+        <!-- Costo -->
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <div class="text-4xl mb-2">💵</div>
+            <div class="text-3xl font-bold text-green-600">${{ analysis.costo_estimado_mxn|floatformat:0 }}</div>
+            <div class="text-gray-500">MXN estimado</div>
+        </div>
+        
+        <!-- CO2 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <div class="text-4xl mb-2">🌱</div>
+            <div class="text-3xl font-bold text-blue-600">{{ analysis.co2e_kg|floatformat:1 }}</div>
+            <div class="text-gray-500">kg CO₂e</div>
+        </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px" id="result-tabs">
+                <button onclick="showTab('breakdown')" 
+                        class="tab-btn active flex-1 py-4 px-4 text-center border-b-2 font-medium text-sm
+                               border-green-500 text-green-600"
+                        id="tab-breakdown">
+                    📈 Desglose
+                </button>
+                <button onclick="showTab('recommendations')" 
+                        class="tab-btn flex-1 py-4 px-4 text-center border-b-2 font-medium text-sm
+                               border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        id="tab-recommendations">
+                    💡 Recomendaciones
+                </button>
+                <button onclick="showTab('assumptions')" 
+                        class="tab-btn flex-1 py-4 px-4 text-center border-b-2 font-medium text-sm
+                               border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        id="tab-assumptions">
+                    ⚙️ Supuestos
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Tab: Desglose -->
+        <div id="panel-breakdown" class="tab-panel p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Consumo por categoría</h3>
+            <div class="space-y-4">
+                {% for categoria, datos in breakdown_sorted %}
+                <div class="relative">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-medium text-gray-700">{{ categoria }}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">{{ datos.kwh }} kWh ({{ datos.pct }}%)</span>
+                            <span class="w-2 h-2 rounded-full
+                                {% if datos.confianza == 'high' %}bg-green-500
+                                {% elif datos.confianza == 'medium' %}bg-yellow-500
+                                {% else %}bg-red-500{% endif %}"
+                                  title="Confianza: {{ datos.confianza }}"></span>
+                        </div>
+                    </div>
+                    <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500
+                            {% if datos.confianza == 'high' %}bg-green-500
+                            {% elif datos.confianza == 'medium' %}bg-yellow-500
+                            {% else %}bg-red-400{% endif %}"
+                             style="width: {{ datos.pct }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center space-x-4 text-sm">
+                    <span class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full mr-1"></span> Alta confianza</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-yellow-500 rounded-full mr-1"></span> Media</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-red-400 rounded-full mr-1"></span> Baja</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab: Recomendaciones -->
+        <div id="panel-recommendations" class="tab-panel p-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Top 3 acciones de ahorro</h3>
+            <div class="space-y-4">
+                {% for rec in analysis.recomendaciones_json %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold text-gray-800">{{ rec.titulo }}</h4>
+                        <div class="flex space-x-2">
+                            <span class="px-2 py-1 text-xs rounded 
+                                {% if rec.costo == 'gratis' %}bg-green-100 text-green-700
+                                {% elif rec.costo == 'bajo' %}bg-blue-100 text-blue-700
+                                {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                                {{ rec.costo|title }}
+                            </span>
+                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700">
+                                {{ rec.dificultad|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">{{ rec.descripcion }}</p>
+                    <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                        <div class="bg-green-50 p-2 rounded">
+                            <div class="font-semibold text-green-700">{{ rec.ahorro_kwh }} kWh</div>
+                            <div class="text-xs text-gray-500">Ahorro</div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded">
+                            <div class="font-semibold text-blue-700">${{ rec.ahorro_mxn|floatformat:0 }}</div>
+                            <div class="text-xs text-gray-500">MXN/bimestre</div>
+                        </div>
+                        <div class="bg-purple-50 p-2 rounded">
+                            <div class="font-semibold text-purple-700">{{ rec.ahorro_co2e|floatformat:1 }} kg</div>
+                            <div class="text-xs text-gray-500">CO₂e</div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-8">No hay recomendaciones disponibles.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Tab: Supuestos -->
+        <div id="panel-assumptions" class="tab-panel p-6 hidden">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <div class="flex items-start">
+                    <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <div>
+                        <h4 class="font-semibold text-yellow-800">Aviso importante</h4>
+                        <p class="text-yellow-700 text-sm mt-1">
+                            Este es un <strong>análisis estimado</strong> basado en reglas heurísticas y los datos 
+                            que proporcionaste. No sustituye una medición real del consumo con wattímetros o 
+                            auditoría energética profesional.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Supuestos utilizados</h3>
+            <ul class="space-y-2">
+                {% for supuesto in analysis.supuestos_json %}
+                <li class="flex items-start">
+                    <span class="text-gray-400 mr-2">•</span>
+                    <span class="text-gray-600 text-sm">{{ supuesto }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-medium text-gray-700 mb-2">Tarifas CFE utilizadas (aproximadas 2024)</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• Básico (0-150 kWh): $0.98/kWh</li>
+                    <li>• Intermedio (151-280 kWh): $1.19/kWh</li>
+                    <li>• Excedente (281-500 kWh): $3.52/kWh</li>
+                    <li>• DAC / Alto consumo: $6.38/kWh</li>
+                    <li>• IVA: 16%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/new/" 
+           class="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Analizar otro recibo
+        </a>
+        <a href="/" 
+           class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+            Volver al inicio
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(tabName) {
+    // Hide all panels
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.add('hidden');
+    });
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-green-500', 'text-green-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected panel
+    document.getElementById('panel-' + tabName).classList.remove('hidden');
+    
+    // Activate selected tab
+    const activeTab = document.getElementById('tab-' + tabName);
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    activeTab.classList.add('border-green-500', 'text-green-600');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% if bills %}
+<div class="space-y-4">
+    {% for bill in bills %}
+    <a href="/results/{{ bill.id }}/" 
+       class="block bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="font-semibold text-gray-800">
+                    {{ bill.consumo_kwh }} kWh · Tarifa {{ bill.tarifa }}
+                </div>
+                <div class="text-sm text-gray-500">
+                    {{ bill.periodo_inicio|date:"d/m/Y" }} - {{ bill.periodo_fin|date:"d/m/Y" }}
+                </div>
+            </div>
+            <div class="text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500 text-center py-4">No hay análisis recientes.</p>
+{% endif %}
