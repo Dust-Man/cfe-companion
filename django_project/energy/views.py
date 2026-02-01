@@ -161,7 +161,14 @@ def results(request, bill_id):
     
     return render(request, 'energy/results.html', context)
 
-
+def dashboard(request, bill_id):
+    """Muestra un dashboard con métricas clave del recibo."""
+    bill = get_object_or_404(Bill, id=bill_id)
+    context = {
+        'bill': bill,
+    }
+    
+    return render(request, 'energy/dashboard.html', context)
 def load_demo(request, demo_id):
     """Carga un recibo demo y muestra resultados."""
     demo_bill = get_object_or_404(Bill, id=demo_id, is_demo=True)

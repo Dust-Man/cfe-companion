@@ -1,0 +1,111 @@
+{% extends "energy/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<section>
+    <div class="stats ">
+        <div class="stat space-y-3">
+            <div class="stat-title text-gray-600 text-base font-semibold">TOTAL A PAGAR</div>
+            <div class="stat-value text-4xl">${{bill.total_recibo_mxn}}</div>
+            <div class="badge badge-soft badge-error font-bold"><svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd"
+                        d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z"
+                        clip-rule="evenodd" />
+                </svg>
+                Vence: {{bill.periodo_fin|date:"d M Y"}}</div>
+        </div>
+    </div>
+</section>
+<section class="w-full flex gap-5">
+    <div class="card bg-base-100 flex-1 shadow-sm">
+        <div class="card-body">
+
+            <div class="flex">
+                <div class="flex-1 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="" class="size-17 fill-green-800">
+                        <path
+                            d="M19.006 3.705a.75.75 0 1 0-.512-1.41L6 6.838V3a.75.75 0 0 0-.75-.75h-1.5A.75.75 0 0 0 3 3v4.93l-1.006.365a.75.75 0 0 0 .512 1.41l16.5-6Z" />
+                        <path fill-rule="evenodd"
+                            d="M3.019 11.114 18 5.667v3.421l4.006 1.457a.75.75 0 1 1-.512 1.41l-.494-.18v8.475h.75a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1 0-1.5H3v-9.129l.019-.007ZM18 20.25v-9.566l1.5.546v9.02H18Zm-9-6a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75V15a.75.75 0 0 0-.75-.75H9Z"
+                            clip-rule="evenodd" />
+                    </svg>
+
+                </div>
+                <div class="flex-1">
+                    <p class="stat-title text-gray-600 text-base font-bold">CONSUMO</p>
+                    <p class="text-4xl font-bold">{{bill.consumo_kwh}}<span class="text-lg text-gray-600">kWh</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card bg-base-100 flex-1 shadow-sm">
+        <div class="card-body">
+
+            <div class="flex">
+                <div class="flex-1 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="" class="size-17 fill-green-800">
+                        <path
+                            d="M19.006 3.705a.75.75 0 1 0-.512-1.41L6 6.838V3a.75.75 0 0 0-.75-.75h-1.5A.75.75 0 0 0 3 3v4.93l-1.006.365a.75.75 0 0 0 .512 1.41l16.5-6Z" />
+                        <path fill-rule="evenodd"
+                            d="M3.019 11.114 18 5.667v3.421l4.006 1.457a.75.75 0 1 1-.512 1.41l-.494-.18v8.475h.75a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1 0-1.5H3v-9.129l.019-.007ZM18 20.25v-9.566l1.5.546v9.02H18Zm-9-6a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75V15a.75.75 0 0 0-.75-.75H9Z"
+                            clip-rule="evenodd" />
+                    </svg>
+
+                </div>
+                <div class="flex-1">
+                    <p class="stat-title text-gray-600 text-base font-bold">CONSUMO</p>
+                    <p class="text-4xl font-bold">{{bill.consumo_kwh}}<span class="text-lg text-gray-600">kWh</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card bg-base-100 flex-1 shadow-sm">
+        <div class="card-body">
+
+            <div class="flex">
+                <div class="flex-1 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="" class="size-17 fill-green-800">
+                        <path
+                            d="M19.006 3.705a.75.75 0 1 0-.512-1.41L6 6.838V3a.75.75 0 0 0-.75-.75h-1.5A.75.75 0 0 0 3 3v4.93l-1.006.365a.75.75 0 0 0 .512 1.41l16.5-6Z" />
+                        <path fill-rule="evenodd"
+                            d="M3.019 11.114 18 5.667v3.421l4.006 1.457a.75.75 0 1 1-.512 1.41l-.494-.18v8.475h.75a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1 0-1.5H3v-9.129l.019-.007ZM18 20.25v-9.566l1.5.546v9.02H18Zm-9-6a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75V15a.75.75 0 0 0-.75-.75H9Z"
+                            clip-rule="evenodd" />
+                    </svg>
+
+                </div>
+                <div class="flex-1">
+                    <p class="stat-title text-gray-600 text-base font-bold">CONSUMO</p>
+                    <p class="text-4xl font-bold">{{bill.consumo_kwh}}<span class="text-lg text-gray-600">kWh</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card bg-base-100 flex-1 shadow-sm">
+        <div class="card-body">
+
+            <div class="flex">
+                <div class="flex-1 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="" class="size-17 fill-green-800">
+                        <path
+                            d="M19.006 3.705a.75.75 0 1 0-.512-1.41L6 6.838V3a.75.75 0 0 0-.75-.75h-1.5A.75.75 0 0 0 3 3v4.93l-1.006.365a.75.75 0 0 0 .512 1.41l16.5-6Z" />
+                        <path fill-rule="evenodd"
+                            d="M3.019 11.114 18 5.667v3.421l4.006 1.457a.75.75 0 1 1-.512 1.41l-.494-.18v8.475h.75a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1 0-1.5H3v-9.129l.019-.007ZM18 20.25v-9.566l1.5.546v9.02H18Zm-9-6a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75V15a.75.75 0 0 0-.75-.75H9Z"
+                            clip-rule="evenodd" />
+                    </svg>
+
+                </div>
+                <div class="flex-1">
+                    <p class="stat-title text-gray-600 text-base font-bold">CONSUMO</p>
+                    <p class="text-4xl font-bold">{{bill.consumo_kwh}}<span class="text-lg text-gray-600">kWh</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
