@@ -1,138 +1,514 @@
 <div>
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">🏠 Cuéntanos sobre tu hogar</h2>
-    <p class="text-gray-600 mb-6">
-        Responde estas preguntas rápidas para personalizar el análisis.
-        <span class="text-sm text-gray-500">(~1 minuto)</span>
+    <h2 class="text-2xl font-bold text-gray-800 mb-1">🏠 Cuéntanos sobre tu hogar</h2>
+    <p class="text-gray-600 mb-1">
+        Responde estas preguntas para que podamos analizar tu consumo y darte recomendaciones personalizadas.
     </p>
-    
-    <form hx-post="/survey/{{ bill.id }}/" 
-          hx-target="#wizard" 
+    <p class="text-sm text-gray-400 mb-6">Las preguntas se adaptan según tus respuestas — no necesitas responder todas.</p>
+
+    <form id="survey-form"
+          hx-post="/survey/{{ bill.id }}/"
+          hx-target="#wizard"
           hx-swap="innerHTML"
           class="space-y-6">
         {% csrf_token %}
-        
-        <!-- Sección: Hogar básico -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 class="font-semibold text-blue-800 mb-4">👥 Sobre tu hogar</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 1 — Cambios recientes
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+            <h3 class="font-bold text-amber-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">🔍</span> Cambios recientes
+            </h3>
+            <p class="text-sm text-amber-700 mb-4">En este periodo, ¿qué cambió en casa? <span class="text-amber-500">(elige todo lo que aplique)</span></p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100 cursor-pointer">
+                    <input type="checkbox" name="cambios_recientes" value="ola_calor" class="mt-0.5 accent-amber-600">
+                    <span class="text-sm text-gray-700">Hizo mucho más calor de lo normal / ola de calor</span>
+                </label>
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100 cursor-pointer">
+                    <input type="checkbox" name="cambios_recientes" value="mas_gente" class="mt-0.5 accent-amber-600">
+                    <span class="text-sm text-gray-700">Hubo más gente en casa (visitas / familia / roomies)</span>
+                </label>
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100 cursor-pointer">
+                    <input type="checkbox" name="cambios_recientes" value="mas_tiempo_casa" class="mt-0.5 accent-amber-600">
+                    <span class="text-sm text-gray-700">Alguien estuvo más tiempo en casa (home office, vacaciones)</span>
+                </label>
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100 cursor-pointer">
+                    <input type="checkbox" name="cambios_recientes" value="aparato_nuevo" class="mt-0.5 accent-amber-600">
+                    <span class="text-sm text-gray-700">Compramos/instalamos un aparato nuevo grande</span>
+                </label>
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100 cursor-pointer">
+                    <input type="checkbox" name="cambios_recientes" value="algo_descompuesto" class="mt-0.5 accent-amber-600">
+                    <span class="text-sm text-gray-700">Se descompuso algo o noté que "trabaja más"</span>
+                </label>
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100 cursor-pointer">
+                    <input type="checkbox" name="cambios_recientes" value="nada" class="mt-0.5 accent-amber-600">
+                    <span class="text-sm text-gray-700">Nada relevante / no estoy seguro</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 2 — Aire acondicionado
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-5">
+            <h3 class="font-bold text-sky-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">❄️</span> Aire acondicionado
+            </h3>
+            <p class="text-sm text-sky-700 mb-3">¿Tienen aire acondicionado?</p>
+
+            <div class="flex flex-wrap gap-2" id="ac-options">
+                {% for val, label in ac_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="tiene_ac" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Follow-ups: solo si tiene A/C -->
+            <div id="ac-followup" class="mt-4 space-y-4 hidden">
                 <div>
-                    <label for="id_personas_en_casa" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.personas_en_casa.label }}
-                    </label>
-                    {{ form.personas_en_casa }}
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Cuántas unidades en total?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in ac_unidades_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="ac_unidades" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div>
-                    <label for="id_cuartos" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.cuartos.label }}
-                    </label>
-                    {{ form.cuartos }}
+                    <p class="text-sm font-medium text-gray-700 mb-2">En este periodo, ¿cuántos días por semana se usó?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in ac_dias_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="ac_dias_semana" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">En días de uso, ¿cuántas horas al día (promedio)?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in ac_horas_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="ac_horas_dia" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">Temperatura típica configurada</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in ac_temp_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="ac_temperatura" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Sección: Climatización -->
-        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h3 class="font-semibold text-orange-800 mb-4">❄️ Climatización</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 3 — Agua caliente
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+            <h3 class="font-bold text-blue-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">🚿</span> Agua caliente
+            </h3>
+            <p class="text-sm text-blue-700 mb-3">Para bañarse, ¿cómo calientan el agua principalmente?</p>
+
+            <div class="flex flex-wrap gap-2">
+                {% for val, label in agua_tipo_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="agua_caliente_tipo" value="{{ val }}" class="sr-only" {% if val == "gas" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Follow-ups: solo si es eléctrico o mixto -->
+            <div id="agua-followup" class="mt-4 space-y-4 hidden">
                 <div>
-                    <label for="id_ac_count" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.ac_count.label }}
-                    </label>
-                    {{ form.ac_count }}
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Qué tienen? <span class="text-gray-400">(marca lo que aplique)</span></p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {% for val, label in agua_equipo_choices %}
+                        <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-blue-100 cursor-pointer">
+                            <input type="checkbox" name="agua_caliente_equipo" value="{{ val }}" class="mt-0.5 accent-blue-600">
+                            <span class="text-sm text-gray-700">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div id="ac-hours-container">
-                    <label for="id_ac_horas_dia" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.ac_horas_dia.label }}
-                    </label>
-                    {{ form.ac_horas_dia }}
-                    <p class="text-xs text-gray-500 mt-1">Si no tiene A/C, deja en 0</p>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Cuántas personas se bañan normalmente al día?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in agua_personas_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="agua_personas" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">Duración promedio del baño</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in agua_duracion_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="agua_duracion" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Sección: Refrigeración -->
-        <div class="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
-            <h3 class="font-semibold text-cyan-800 mb-4">🧊 Refrigeración</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="id_refrigeradores" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.refrigeradores.label }}
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 4 — Refrigeración
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-5">
+            <h3 class="font-bold text-cyan-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">🧊</span> Refrigeración
+            </h3>
+            <p class="text-sm text-cyan-700 mb-3">¿Cuántos refrigeradores/congeladores usan?</p>
+
+            <div class="flex flex-wrap gap-2">
+                {% for val, label in ref_count_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="refrigeradores" value="{{ val }}" class="sr-only" {% if val == "1" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Follow-up antigüedad: solo si tiene al menos 1 -->
+            <div id="ref-followup" class="mt-4 hidden">
+                <p class="text-sm font-medium text-gray-700 mb-2">El principal es…</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for val, label in ref_antiguedad_choices %}
+                    <label class="radio-pill">
+                        <input type="radio" name="ref_antiguedad" value="{{ val }}" class="sr-only">
+                        <span class="pill-label">{{ label }}</span>
                     </label>
-                    {{ form.refrigeradores }}
-                </div>
-                <div>
-                    <label for="id_ref_antiguedad" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.ref_antiguedad.label }}
-                    </label>
-                    {{ form.ref_antiguedad }}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        
-        <!-- Sección: Agua y lavado -->
-        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-            <h3 class="font-semibold text-purple-800 mb-4">💧 Agua y lavado</h3>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 5 — Secadora
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-orange-50 border border-orange-200 rounded-xl p-5">
+            <h3 class="font-bold text-orange-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">👕</span> Secado de ropa
+            </h3>
+            <p class="text-sm text-orange-700 mb-3">¿Tienen secadora?</p>
+
+            <div class="flex flex-wrap gap-2">
+                {% for val, label in secadora_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="tiene_secadora" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div id="secadora-followup" class="mt-4 space-y-4 hidden">
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Cuántas cargas por semana (aprox.)?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in secadora_cargas_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="secadora_cargas" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Suelen usar modo "alto calor"?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in secadora_calor_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="secadora_alto_calor" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 6 — Bombas
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-teal-50 border border-teal-200 rounded-xl p-5">
+            <h3 class="font-bold text-teal-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">💧</span> Bombas de agua
+            </h3>
+            <p class="text-sm text-teal-700 mb-3">¿Tienen bomba de agua / hidroneumático?</p>
+
+            <div class="flex flex-wrap gap-2">
+                {% for val, label in bomba_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="tiene_bomba" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div id="bomba-followup" class="mt-4 hidden">
+                <p class="text-sm font-medium text-gray-700 mb-2">En este periodo, ¿con qué frecuencia estuvo funcionando?</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for val, label in bomba_frecuencia_choices %}
+                    <label class="radio-pill">
+                        <input type="radio" name="bomba_frecuencia" value="{{ val }}" class="sr-only">
+                        <span class="pill-label">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Bomba de alberca (siempre visible dentro de la sección) -->
+            <div class="mt-4 pt-4 border-t border-teal-200">
+                <p class="text-sm font-medium text-gray-700 mb-2">¿Tienen bomba de alberca?</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for val, label in bomba_alberca_choices %}
+                    <label class="radio-pill">
+                        <input type="radio" name="tiene_bomba_alberca" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                        <span class="pill-label">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <div id="bomba-alberca-followup" class="mt-3 hidden">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Horas al día</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in bomba_alberca_horas_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="bomba_alberca_horas" value="{{ val }}" class="sr-only">
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 7 — Calefactor eléctrico
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-red-50 border border-red-200 rounded-xl p-5">
+            <h3 class="font-bold text-red-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">🔥</span> Calefacción eléctrica
+            </h3>
+            <p class="text-sm text-red-700 mb-3">¿Usaron calefactor eléctrico en este periodo?</p>
+
+            <div class="flex flex-wrap gap-2">
+                {% for val, label in calefactor_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="calefactor" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div id="calefactor-followup" class="mt-4 hidden">
+                <p class="text-sm font-medium text-gray-700 mb-2">Horas al día en días de uso</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for val, label in calefactor_horas_choices %}
+                    <label class="radio-pill">
+                        <input type="radio" name="calefactor_horas" value="{{ val }}" class="sr-only">
+                        <span class="pill-label">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 8 — Cocina eléctrica
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5">
+            <h3 class="font-bold text-yellow-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">🍳</span> Cocina
+            </h3>
+            <p class="text-sm text-yellow-700 mb-3">Tu cocina principal es…</p>
+
+            <div class="flex flex-wrap gap-2">
+                {% for val, label in cocina_tipo_choices %}
+                <label class="radio-pill">
+                    <input type="radio" name="cocina_tipo" value="{{ val }}" class="sr-only" {% if val == "gas" %}checked{% endif %}>
+                    <span class="pill-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Aparatos eléctricos de cocina (siempre visibles — la pregunta aplica en cualquier caso) -->
+            <div class="mt-4 pt-4 border-t border-yellow-200 space-y-3">
+                <p class="text-sm font-medium text-gray-700">En este periodo, ¿qué tanto usaron estos?</p>
+
+                <!-- Horno eléctrico -->
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Horno eléctrico</span>
+                    <div class="flex gap-2">
+                        {% for val, label in cocina_horno_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="cocina_horno" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                            <span class="pill-label pill-sm">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Airfryer -->
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Airfryer</span>
+                    <div class="flex gap-2">
+                        {% for val, label in cocina_airfryer_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="cocina_airfryer" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                            <span class="pill-label pill-sm">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Parrilla eléctrica -->
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Parrilla eléctrica / inducción</span>
+                    <div class="flex gap-2">
+                        {% for val, label in cocina_parrilla_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="cocina_parrilla" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                            <span class="pill-label pill-sm">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Hervidor -->
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Hervidor eléctrico</span>
+                    <div class="flex gap-2">
+                        {% for val, label in cocina_hervidor_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="cocina_hervidor" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                            <span class="pill-label pill-sm">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 9 — Siempre encendidos
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
+            <h3 class="font-bold text-indigo-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">📺</span> Dispositivos electrónicos
+            </h3>
+
             <div class="space-y-4">
                 <div>
-                    <label for="id_agua_caliente" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ form.agua_caliente.label }}
-                    </label>
-                    {{ form.agua_caliente }}
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Cuántas TVs se usan casi diario?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in tvs_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="tvs" value="{{ val }}" class="sr-only" {% if val == "0" %}checked{% endif %}>
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="flex flex-wrap gap-6">
-                    <label class="flex items-center space-x-2">
-                        {{ form.lavadora }}
-                        <span class="text-sm text-gray-700">{{ form.lavadora.label }}</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        {{ form.secadora }}
-                        <span class="text-sm text-gray-700">{{ form.secadora.label }}</span>
-                    </label>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿PC de escritorio/gaming o laptop en uso diario?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in pc_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="pc_uso" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Hay consola de videojuegos en uso?</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for val, label in consola_choices %}
+                        <label class="radio-pill">
+                            <input type="radio" name="consola" value="{{ val }}" class="sr-only" {% if val == "no" %}checked{% endif %}>
+                            <span class="pill-label">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">¿Tienen algo encendido 24/7? <span class="text-gray-400">(marca lo que aplique)</span></p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {% for val, label in siempre_encendidos_choices %}
+                        <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-indigo-100 cursor-pointer">
+                            <input type="checkbox" name="siempre_encendidos" value="{{ val }}" class="mt-0.5 accent-indigo-600">
+                            <span class="text-sm text-gray-700">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Sección: Otros -->
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 class="font-semibold text-gray-800 mb-4">🔌 Otros equipos</h3>
-            <div class="flex flex-wrap gap-6">
-                <label class="flex items-center space-x-2">
-                    {{ form.home_office }}
-                    <span class="text-sm text-gray-700">{{ form.home_office.label }}</span>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECCIÓN 10 — Culpables ocultos
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-5">
+            <h3 class="font-bold text-purple-900 mb-1 flex items-center gap-2">
+                <span class="text-lg">🔎</span> Culpables ocultos
+            </h3>
+            <p class="text-sm text-purple-700 mb-3">¿Tienen alguno de estos? <span class="text-purple-500">(marca lo que aplique)</span></p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {% for val, label in culpables_choices %}
+                <label class="checkbox-label flex items-start gap-2 p-2 rounded-lg hover:bg-purple-100 cursor-pointer">
+                    <input type="checkbox" name="culpables_ocultos" value="{{ val }}" class="mt-0.5 accent-purple-600">
+                    <span class="text-sm text-gray-700">{{ label }}</span>
                 </label>
-                <label class="flex items-center space-x-2">
-                    {{ form.bombeo_agua }}
-                    <span class="text-sm text-gray-700">{{ form.bombeo_agua.label }}</span>
-                </label>
-            </div>
-        </div>
-        
-        <!-- Errores -->
-        {% if form.errors %}
-        <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-            <p class="font-semibold">Por favor corrige los siguientes errores:</p>
-            <ul class="list-disc list-inside mt-2">
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li>{{ field.label }}: {{ error }}</li>
-                    {% endfor %}
                 {% endfor %}
-            </ul>
+            </div>
+
+            <div id="culpables-followup" class="mt-4 hidden">
+                <p class="text-sm font-medium text-gray-700 mb-2">Uso típico en este periodo</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for val, label in culpables_uso_choices %}
+                    <label class="radio-pill">
+                        <input type="radio" name="culpables_uso" value="{{ val }}" class="sr-only">
+                        <span class="pill-label">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        <!-- Submit -->
-        <div class="flex justify-between pt-4">
-            <a href="/new/" 
+
+        <!-- ═══════════════════════════════════════════════════════════
+             BOTONES
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="flex justify-between pt-2">
+            <a href="/new/"
                class="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-800">
                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
                 Volver
             </a>
-            <button type="submit" 
+            <button type="submit"
                     class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">
-                Ver resultados
+                Ver recomendaciones
                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
@@ -146,3 +522,131 @@
         </div>
     </form>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STYLES — pill radio buttons
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+.radio-pill input:checked + .pill-label {
+    background-color: #166534;
+    color: #fff;
+    border-color: #166534;
+}
+.pill-label {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    background-color: #fff;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+.pill-label:hover {
+    border-color: #16a34a;
+    background-color: #f0fdf4;
+}
+.pill-sm {
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JS — conditional visibility
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    const form = document.getElementById('survey-form');
+
+    // ── helpers ──
+    function show(id) { document.getElementById(id).classList.remove('hidden'); }
+    function hide(id) { document.getElementById(id).classList.add('hidden'); }
+    function getRadioVal(name) {
+        const el = form.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : null;
+    }
+    function anyCheckboxChecked(name) {
+        return form.querySelectorAll(`input[name="${name}"]:checked`).length > 0;
+    }
+
+    // ── rules ──
+    function updateAC() {
+        const v = getRadioVal('tiene_ac');
+        if (v && v !== 'no') { show('ac-followup'); }
+        else { hide('ac-followup'); }
+    }
+
+    function updateAgua() {
+        const v = getRadioVal('agua_caliente_tipo');
+        if (v === 'electrico' || v === 'mixto') { show('agua-followup'); }
+        else { hide('agua-followup'); }
+    }
+
+    function updateRef() {
+        const v = getRadioVal('refrigeradores');
+        if (v && v !== '0') { show('ref-followup'); }
+        else { hide('ref-followup'); }
+    }
+
+    function updateSecadora() {
+        const v = getRadioVal('tiene_secadora');
+        if (v === 'electrica') { show('secadora-followup'); }
+        else { hide('secadora-followup'); }
+    }
+
+    function updateBomba() {
+        const v = getRadioVal('tiene_bomba');
+        if (v === 'si') { show('bomba-followup'); }
+        else { hide('bomba-followup'); }
+    }
+
+    function updateBombaAlberca() {
+        const v = getRadioVal('tiene_bomba_alberca');
+        if (v === 'si') { show('bomba-alberca-followup'); }
+        else { hide('bomba-alberca-followup'); }
+    }
+
+    function updateCalefactor() {
+        const v = getRadioVal('calefactor');
+        if (v === 'ocasional' || v === 'frecuente') { show('calefactor-followup'); }
+        else { hide('calefactor-followup'); }
+    }
+
+    function updateCulpables() {
+        if (anyCheckboxChecked('culpables_ocultos')) { show('culpables-followup'); }
+        else { hide('culpables-followup'); }
+    }
+
+    function runAll() {
+        updateAC();
+        updateAgua();
+        updateRef();
+        updateSecadora();
+        updateBomba();
+        updateBombaAlberca();
+        updateCalefactor();
+        updateCulpables();
+    }
+
+    // ── listen ── (event delegation on the form)
+    form.addEventListener('change', function (e) {
+        const name = e.target.name;
+        switch (name) {
+            case 'tiene_ac':          updateAC(); break;
+            case 'agua_caliente_tipo': updateAgua(); break;
+            case 'refrigeradores':    updateRef(); break;
+            case 'tiene_secadora':    updateSecadora(); break;
+            case 'tiene_bomba':       updateBomba(); break;
+            case 'tiene_bomba_alberca': updateBombaAlberca(); break;
+            case 'calefactor':        updateCalefactor(); break;
+            case 'culpables_ocultos': updateCulpables(); break;
+        }
+    });
+
+    // Initial state
+    runAll();
+})();
+</script>

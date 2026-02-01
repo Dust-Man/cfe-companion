@@ -24,15 +24,13 @@ class Bill(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     
-    # Campos requeridos
     tarifa = models.CharField(max_length=20, choices=TARIFA_CHOICES)
     periodo_inicio = models.DateField()
     periodo_fin = models.DateField()
     consumo_kwh = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5000)]
+        validators=[MinValueValidator(1)]
     )
     
-    # Campos opcionales para validación
     total_recibo_mxn = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
@@ -43,7 +41,6 @@ class Bill(models.Model):
         max_digits=10, decimal_places=2, null=True, blank=True
     )
     
-    # Escalones tarifarios (extraídos por OCR o ingresados manualmente)
     periodo_basico_kwh = models.PositiveIntegerField(null=True, blank=True)
     periodo_intermedio_kwh = models.PositiveIntegerField(null=True, blank=True)
     periodo_excedente_kwh = models.PositiveIntegerField(null=True, blank=True)
@@ -57,12 +54,10 @@ class Bill(models.Model):
         max_digits=10, decimal_places=2, null=True, blank=True
     )
     
-    # Evidencia opcional
     evidencia_archivo = models.FileField(
         upload_to='evidencias/', null=True, blank=True
     )
     
-    # Flag para demos
     is_demo = models.BooleanField(default=False)
     
     class Meta:
@@ -72,46 +67,38 @@ class Bill(models.Model):
         return f"Recibo {self.tarifa} - {self.consumo_kwh} kWh ({self.periodo_inicio} a {self.periodo_fin})"
     
     def dias_periodo(self):
-        """Retorna días del periodo de facturación."""
         return (self.periodo_fin - self.periodo_inicio).days
 
     @property
     def consumo_basico(self):
-        """Consumo en rango básico."""
         return self.periodo_basico_kwh or 0
 
     @property
     def consumo_intermedio(self):
-        """Consumo en rango intermedio."""
         return self.periodo_intermedio_kwh or 0
 
     @property
     def consumo_excedente(self):
-        """Consumo en rango excedente."""
         return self.periodo_excedente_kwh or 0
 
     @property
     def precio_unitario(self):
-        """Precio unitario promedio."""
         if self.consumo_kwh and self.total_recibo_mxn:
             return (self.total_recibo_mxn / self.consumo_kwh).quantize(Decimal('0.01'))
         return Decimal('0.00')
 
     @property
     def subsidio(self):
-        """Subsidio aplicado."""
         return self.subsidio_mxn or Decimal('0.00')
 
     @property
     def demanda_max(self):
-        """Demanda máxima (estimada como consumo diario promedio)."""
         if self.dias_periodo() > 0:
             return Decimal(self.consumo_kwh / self.dias_periodo()).quantize(Decimal('0.1'))
         return Decimal('0.0')
 
     @property
     def subtotal_energia(self):
-        """Subtotal de energía."""
         subtotal = Decimal('0.00')
         if self.subtotal_basico_mxn:
             subtotal += self.subtotal_basico_mxn
@@ -123,108 +110,94 @@ class Bill(models.Model):
 
     @property
     def iva(self):
-        """IVA calculado (16% del subtotal de energía)."""
         return (self.subtotal_energia * Decimal('0.16')).quantize(Decimal('0.01'))
 
     @property
     def precio_basico(self):
-        """Precio unitario del escalón básico."""
         if self.consumo_basico and self.subtotal_basico_mxn:
             return (self.subtotal_basico_mxn / self.consumo_basico).quantize(Decimal('0.01'))
         return Decimal('0.00')
 
     @property
     def precio_intermedio(self):
-        """Precio unitario del escalón intermedio."""
         if self.consumo_intermedio and self.subtotal_intermedio_mxn:
             return (self.subtotal_intermedio_mxn / self.consumo_intermedio).quantize(Decimal('0.01'))
         return Decimal('0.00')
 
     @property
     def precio_excedente(self):
-        """Precio unitario del escalón excedente."""
         if self.consumo_excedente and self.subtotal_excedente_mxn:
             return (self.subtotal_excedente_mxn / self.consumo_excedente).quantize(Decimal('0.01'))
         return Decimal('0.00')
 
 
 class Survey(models.Model):
-    """Cuestionario sobre el hogar y aparatos."""
+    """
+    Cuestionario sobre el hogar — versión nueva (condicional).
     
-    AC_COUNT_CHOICES = [
-        (0, 'No tengo'),
-        (1, '1 unidad'),
-        (2, '2 o más'),
-    ]
+    Las respuestas se guardan como un único JSON en `respuestas`.
+    Esto permite que la encuesta condicional agregue o omita campos
+    sin necesitar columnas extras ni migraciones nuevas.
     
-    REF_COUNT_CHOICES = [
-        (1, '1 refrigerador'),
-        (2, '2 o más'),
-    ]
-    
-    REF_ANTIGUEDAD_CHOICES = [
-        ('new', 'Nuevo (menos de 5 años)'),
-        ('mid', 'Medio (5-12 años)'),
-        ('old', 'Antiguo (más de 12 años)'),
-    ]
-    
-    AGUA_CALIENTE_CHOICES = [
-        ('gas', 'Gas (boiler/calentador)'),
-        ('elec', 'Eléctrico'),
-        ('none', 'No uso agua caliente'),
-    ]
-    
+    Estructura esperada de `respuestas`:
+    {
+        # Pantalla 1 — cambios recientes (lista de strings)
+        "cambios_recientes": ["ola_calor", "mas_gente", ...],
+
+        # Pantalla 2 — A/C
+        "tiene_ac": "no" | "minisplit_inverter" | "minisplit_no_inverter" | "ventana" | "no_se",
+        "ac_unidades": "1" | "2" | "3+",          # solo si tiene_ac != "no"
+        "ac_dias_semana": "1-2" | "3-4" | "5-6" | "7",
+        "ac_horas_dia": "1-2" | "3-5" | "6-8" | "9+",
+        "ac_temperatura": "18-20" | "21-23" | "24-26" | "no_se",
+
+        # Pantalla 3 — agua caliente
+        "agua_caliente_tipo": "gas" | "electrico" | "mixto",
+        "agua_caliente_equipo": ["boiler_electrico", "regadera_electrica", ...],
+        "agua_personas": "1" | "2" | "3-4" | "5+",
+        "agua_duracion": "3-5" | "6-10" | "11-15" | "16+",
+
+        # Pantalla 4 — refrigeración
+        "refrigeradores": "0" | "1" | "2" | "3+",
+        "ref_antiguedad": "nuevo" | "medio" | "viejo" | "no_se",
+
+        # Pantalla 5 — secadora
+        "tiene_secadora": "no" | "electrica" | "gas" | "no_se",
+        "secadora_cargas": "1-2" | "3-4" | "5-7" | "8+",
+        "secadora_alto_calor": "si" | "no" | "no_se",
+
+        # Pantalla 6 — bombas
+        "tiene_bomba": "no" | "si" | "no_se",
+        "bomba_frecuencia": "poco" | "normal" | "mucho" | "no_se",
+        "tiene_bomba_alberca": "no" | "si",
+        "bomba_alberca_horas": "1-2" | "3-5" | "6+",
+
+        # Pantalla 7 — calefactor eléctrico
+        "calefactor": "no" | "ocasional" | "frecuente" | "no_se",
+        "calefactor_horas": "1-2" | "3-5" | "6-8" | "9+",
+
+        # Pantalla 8 — cocina
+        "cocina_tipo": "gas" | "electrica" | "mixta",
+        "cocina_horno": "no" | "1-2" | "3+",
+        "cocina_airfryer": "no" | "1-3" | "4+",
+        "cocina_parrilla": "no" | "poco" | "diario",
+        "cocina_hervidor": "no" | "1-3" | "diario",
+
+        # Pantalla 9 — siempre encendidos
+        "tvs": "0" | "1" | "2" | "3+",
+        "pc_uso": "no" | "1-3" | "4-8" | "9+",
+        "consola": "no" | "1-3" | "4+",
+        "siempre_encendidos": ["router", "camaras", "servidor"],
+
+        # Pantalla 10 — culpables ocultos
+        "culpables_ocultos": ["lavavajillas", "deshumidificador", ...],
+        "culpables_uso": "solo_a_veces" | "1-2" | "3-5" | "6+" | "no_se",
+    }
+    """
     bill = models.OneToOneField(Bill, on_delete=models.CASCADE, related_name='survey')
-    
-    # Hogar básico
-    personas_en_casa = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(15)],
-        verbose_name="Personas en casa"
-    )
-    cuartos = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(20)],
-        verbose_name="Número de cuartos"
-    )
-    
-    # Aire acondicionado
-    ac_count = models.IntegerField(
-        choices=AC_COUNT_CHOICES, default=0,
-        verbose_name="Unidades de A/C"
-    )
-    ac_horas_dia = models.PositiveIntegerField(
-        default=0,
-        validators=[MaxValueValidator(24)],
-        verbose_name="Horas de uso A/C por día"
-    )
-    
-    # Refrigeración
-    refrigeradores = models.IntegerField(
-        choices=REF_COUNT_CHOICES, default=1,
-        verbose_name="Refrigeradores"
-    )
-    ref_antiguedad = models.CharField(
-        max_length=10, choices=REF_ANTIGUEDAD_CHOICES, default='mid',
-        verbose_name="Antigüedad del refrigerador principal"
-    )
-    
-    # Agua caliente
-    agua_caliente = models.CharField(
-        max_length=10, choices=AGUA_CALIENTE_CHOICES, default='gas',
-        verbose_name="Tipo de calentador de agua"
-    )
-    
-    # Lavado
-    lavadora = models.BooleanField(default=True, verbose_name="¿Tiene lavadora?")
-    secadora = models.BooleanField(default=False, verbose_name="¿Tiene secadora eléctrica?")
-    
-    # Otros
-    home_office = models.BooleanField(
-        default=False, verbose_name="¿Trabaja desde casa (home office)?"
-    )
-    bombeo_agua = models.BooleanField(
-        default=False, verbose_name="¿Tiene bomba de agua (tinaco/cisterna)?"
-    )
-    
+    respuestas = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"Encuesta para {self.bill}"
 
@@ -241,23 +214,13 @@ class AnalysisResult(models.Model):
     bill = models.OneToOneField(Bill, on_delete=models.CASCADE, related_name='analysis')
     created_at = models.DateTimeField(auto_now_add=True)
     
-    # Resultados principales
     costo_estimado_mxn = models.DecimalField(max_digits=10, decimal_places=2)
     co2e_kg = models.DecimalField(max_digits=10, decimal_places=2)
     
-    # Desglose por categorías (JSON)
-    # Formato: {"categoria": {"kwh": X, "pct": Y, "confianza": "high|medium|low"}}
     breakdown_json = models.JSONField(default=dict)
-    
-    # Recomendaciones (JSON)
-    # Formato: [{"titulo": "", "descripcion": "", "ahorro_kwh": X, "ahorro_mxn": X, 
-    #            "ahorro_co2e": X, "costo": "gratis|bajo|medio", "dificultad": "fácil|media"}]
     recomendaciones_json = models.JSONField(default=list)
-    
-    # Supuestos del cálculo (JSON)
     supuestos_json = models.JSONField(default=list)
     
-    # Confianza global
     confianza_global = models.CharField(
         max_length=10, choices=CONFIDENCE_CHOICES, default='medium'
     )

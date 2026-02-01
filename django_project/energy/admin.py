@@ -16,8 +16,25 @@ class BillAdmin(admin.ModelAdmin):
 
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'bill', 'personas_en_casa', 'ac_count', 'refrigeradores', 'agua_caliente']
-    list_filter = ['ac_count', 'refrigeradores', 'agua_caliente']
+    list_display = ['id', 'bill', 'created_at', 'resumen_respuestas']
+    ordering = ['-created_at']
+
+    def resumen_respuestas(self, obj):
+        """Muestra un resumen rápido de las respuestas clave."""
+        r = obj.respuestas
+        partes = []
+        # A/C
+        ac = r.get('tiene_ac', 'no')
+        partes.append(f"A/C: {ac}")
+        # Refrigeradores
+        partes.append(f"Refri: {r.get('refrigeradores', '?')}")
+        # Agua caliente
+        partes.append(f"Agua: {r.get('agua_caliente_tipo', '?')}")
+        # Secadora
+        partes.append(f"Secadora: {r.get('tiene_secadora', 'no')}")
+        return " | ".join(partes)
+
+    resumen_respuestas.short_description = "Resumen"
 
 
 @admin.register(AnalysisResult)

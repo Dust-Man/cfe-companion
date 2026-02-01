@@ -4,7 +4,7 @@ Forms for the Electric Assistant MVP.
 
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Bill, Survey
+from .models import Bill
 
 
 # ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class BillForm(forms.ModelForm):
                 'type': 'date', 'class': _INPUT_CSS,
             }),
             'consumo_kwh': forms.NumberInput(attrs={
-                'class': _INPUT_CSS, 'placeholder': 'Ej: 280', 'min': 1, 'max': 5000,
+                'class': _INPUT_CSS, 'placeholder': 'Ej: 280', 'min': 1, 'max': 20000,
             }),
             'total_recibo_mxn': forms.NumberInput(attrs={
                 'class': _INPUT_CSS, 'placeholder': 'Ej: 450.00', 'step': '0.01',
@@ -104,86 +104,26 @@ class BillForm(forms.ModelForm):
         periodo_inicio = cleaned_data.get('periodo_inicio')
         periodo_fin = cleaned_data.get('periodo_fin')
         consumo_kwh = cleaned_data.get('consumo_kwh')
-        lectura_anterior = cleaned_data.get('lectura_anterior')
-        lectura_actual = cleaned_data.get('lectura_actual')
-        multiplicador = cleaned_data.get('multiplicador', 1) or 1
-        
+
         # Validar que periodo_fin > periodo_inicio
         if periodo_inicio and periodo_fin:
             if periodo_fin <= periodo_inicio:
                 raise ValidationError(
                     'La fecha de fin debe ser posterior a la fecha de inicio.'
                 )
-        
-        # Validar lecturas vs consumo (si se proporcionan)
- 
 
         # Validar que la suma de escalones no exceda el consumo total (si se proporcionan)
         basico = cleaned_data.get('periodo_basico_kwh') or 0
         intermedio = cleaned_data.get('periodo_intermedio_kwh') or 0
         excedente = cleaned_data.get('periodo_excedente_kwh') or 0
-        suma_escalones = basico + intermedio + excedente
 
-        if suma_escalones > 0 and consumo_kwh:
-            tolerancia = consumo_kwh * 0.05  # 5% de tolerancia
-            if abs(suma_escalones - consumo_kwh) > tolerancia:
-                self.add_error(None,
-                    f'La suma de los escalones ({suma_escalones} kWh) no coincide '
-                    f'con el consumo total ({consumo_kwh} kWh). '
-                    f'Diferencia mayor al 5%. Revisa los datos o deja los escalones vacíos.'
-                )
         
         return cleaned_data
 
 
-class SurveyForm(forms.ModelForm):
-    """Formulario del cuestionario de hogar."""
-    
-    class Meta:
-        model = Survey
-        exclude = ['bill']
-        widgets = {
-            'personas_en_casa': forms.NumberInput(attrs={
-                'class': _INPUT_CSS, 'min': 1, 'max': 15,
-            }),
-            'cuartos': forms.NumberInput(attrs={
-                'class': _INPUT_CSS, 'min': 1, 'max': 20,
-            }),
-            'ac_count': forms.Select(attrs={
-                'class': _INPUT_CSS,
-                'hx-trigger': 'change',
-                'hx-get': '',  # Se configura en template
-                'hx-target': '#ac-hours-container'
-            }),
-            'ac_horas_dia': forms.NumberInput(attrs={
-                'class': _INPUT_CSS, 'min': 0, 'max': 24,
-            }),
-            'refrigeradores': forms.Select(attrs={'class': _INPUT_CSS}),
-            'ref_antiguedad': forms.Select(attrs={'class': _INPUT_CSS}),
-            'agua_caliente': forms.Select(attrs={'class': _INPUT_CSS}),
-            'lavadora': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500'
-            }),
-            'secadora': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500'
-            }),
-            'home_office': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500'
-            }),
-            'bombeo_agua': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500'
-            }),
-        }
-        labels = {
-            'personas_en_casa': '¿Cuántas personas viven en casa?',
-            'cuartos': '¿Cuántos cuartos tiene la casa?',
-            'ac_count': '¿Tiene aire acondicionado?',
-            'ac_horas_dia': 'Horas promedio de uso del A/C por día',
-            'refrigeradores': '¿Cuántos refrigeradores tiene?',
-            'ref_antiguedad': 'Antigüedad del refrigerador principal',
-            'agua_caliente': '¿Cómo calienta el agua?',
-            'lavadora': '¿Tiene lavadora?',
-            'secadora': '¿Tiene secadora eléctrica?',
-            'home_office': '¿Trabaja desde casa?',
-            'bombeo_agua': '¿Tiene bomba de agua?',
-        }
+# ---------------------------------------------------------------------------
+# NOTA: La antigua SurveyForm fue eliminada.
+# La nueva encuesta condicional se procesa directamente en views.py
+# mediante _parse_survey_post() sin usar un ModelForm, ya que todas las
+# respuestas se guardan en un único JSONField (Survey.respuestas).
+# ---------------------------------------------------------------------------
