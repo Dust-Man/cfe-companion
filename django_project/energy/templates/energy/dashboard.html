@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        <!-- Card 2: PRECIO UNIT. -->
+        <!-- Card 2: PRECIO BÁSICO -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 relative">
             <button class="absolute top-3 right-3 text-gray-300 hover:text-gray-500 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
@@ -65,22 +65,43 @@
                 </svg>
             </button>
             <div class="flex items-center gap-3">
-                <!-- Magnifying glass + $ icon -->
+                <!-- Green circle with $ icon -->
+                <div class="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="10" cy="10" r="6"/>
+                        <text x="7" y="13" font-size="7" fill="#22c55e" stroke="none" font-weight="bold">$</text>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PRECIO BÁSICO</p>
+                    <p class="text-2xl font-bold text-gray-900">${{bill.precio_basico}} <span class="text-sm font-normal text-gray-500">/kWh</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: PRECIO INTERMEDIO -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 relative">
+            <button class="absolute top-3 right-3 text-gray-300 hover:text-gray-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM7 8.268a.75.75 0 0 0-.75.75v.03c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.018a.75.75 0 0 0-.75-.75H7Zm5.625 0a.75.75 0 0 0-.75.75v.03c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.018a.75.75 0 0 0-.75-.75h-.008Zm-.391 2.143a.75.75 0 0 0-1.061 1.061c.176.177.28.415.28.668s-.104.491-.28.668c-.293.293-.293.768 0 1.061a.75.75 0 0 0 1.06 0c.587-.586.94-1.38.94-2.25s-.353-1.664-.94-2.25Z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <div class="flex items-center gap-3">
+                <!-- Yellow circle with $ icon -->
                 <div class="w-11 h-11 bg-yellow-50 rounded-xl flex items-center justify-center flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
                         <circle cx="10" cy="10" r="6"/>
-                        <line x1="15" y1="15" x2="21" y2="21"/>
                         <text x="7" y="13" font-size="7" fill="#eab308" stroke="none" font-weight="bold">$</text>
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PRECIO UNIT.</p>
-                    <p class="text-2xl font-bold text-gray-900">${{bill.precio_unitario}} <span class="text-sm font-normal text-gray-500">/kWh</span></p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PRECIO INTERMEDIO</p>
+                    <p class="text-2xl font-bold text-gray-900">${{bill.precio_intermedio}} <span class="text-sm font-normal text-gray-500">/kWh</span></p>
                 </div>
             </div>
         </div>
 
-        <!-- Card 3: SUBSIDIO -->
+        <!-- Card 4: PRECIO EXCEDENTE -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 relative">
             <button class="absolute top-3 right-3 text-gray-300 hover:text-gray-500 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
@@ -88,43 +109,16 @@
                 </svg>
             </button>
             <div class="flex items-center gap-3">
-                <!-- Shield checkmark icon -->
-                <div class="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <polyline points="9,12 11,14 15,10"/>
+                <!-- Red circle with $ icon -->
+                <div class="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="10" cy="10" r="6"/>
+                        <text x="7" y="13" font-size="7" fill="#ef4444" stroke="none" font-weight="bold">$</text>
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">SUBSIDIO</p>
-                    <p class="text-2xl font-bold text-green-600">${{bill.subsidio}}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 4: DEMANDA MAX -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 relative">
-            <button class="absolute top-3 right-3 text-gray-300 hover:text-gray-500 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM7 8.268a.75.75 0 0 0-.75.75v.03c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.018a.75.75 0 0 0-.75-.75H7Zm5.625 0a.75.75 0 0 0-.75.75v.03c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.018a.75.75 0 0 0-.75-.75h-.008Zm-.391 2.143a.75.75 0 0 0-1.061 1.061c.176.177.28.415.28.668s-.104.491-.28.668c-.293.293-.293.768 0 1.061a.75.75 0 0 0 1.06 0c.587-.586.94-1.38.94-2.25s-.353-1.664-.94-2.25Z" clip-rule="evenodd" />
-                </svg>
-            </button>
-            <div class="flex items-center gap-3">
-                <!-- Tower / antenna icon -->
-                <div class="w-11 h-11 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                        <line x1="12" y1="2" x2="12" y2="22"/>
-                        <line x1="12" y1="2" x2="6" y2="8"/>
-                        <line x1="12" y1="2" x2="18" y2="8"/>
-                        <line x1="12" y1="7" x2="8" y2="11"/>
-                        <line x1="12" y1="7" x2="16" y2="11"/>
-                        <!-- small red lightning tip -->
-                        <path d="M11.5 1L13 3.5L11.5 3L13 5" fill="#ef4444" stroke="#ef4444" stroke-width="0.8"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">DEMANDA MAX</p>
-                    <p class="text-2xl font-bold text-gray-900">{{bill.demanda_max}} <span class="text-sm font-normal text-gray-500">kW</span></p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PRECIO EXCEDENTE</p>
+                    <p class="text-2xl font-bold text-gray-900">${{bill.precio_excedente}} <span class="text-sm font-normal text-gray-500">/kWh</span></p>
                 </div>
             </div>
         </div>
@@ -133,27 +127,20 @@
     <!-- ===== BOTTOM SECTION: SUMMARY TABS (left) + INVOICE BREAKDOWN (right) ===== -->
     <section class="flex flex-col lg:flex-row gap-5">
 
-        <!-- LEFT: Tabbed Card -->
+        <!-- LEFT: Summary Card -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm flex-1 overflow-hidden">
 
-            <!-- Tabs -->
-            <div class="flex items-center px-6 pt-5 gap-6 border-b border-gray-100">
-                <button class="text-blue-600 font-semibold text-sm pb-3 border-b-2 border-blue-600">Resumen</button>
-                <button class="text-gray-400 font-semibold text-sm pb-3 hover:text-gray-600 transition-colors">Historial de Consumo</button>
-            </div>
-
-            <!-- Tab Content -->
+            <!-- Content -->
             <div class="p-6">
 
-                <!-- Header: Rangos de Consumo + Ver detalles -->
-                <div class="flex items-center justify-between mb-5">
+                <!-- Header: Rangos de Consumo -->
+                <div class="flex items-center mb-5">
                     <div class="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1e293b" class="w-5 h-5">
                             <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75ZM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 0 1-1.875-1.875V8.625ZM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 0 1 3 19.875v-6.75Z" />
                         </svg>
                         <h3 class="text-base font-bold text-gray-900">Rangos de Consumo</h3>
                     </div>
-                    <button class="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1 hover:bg-blue-100 transition-colors">Ver detalles</button>
                 </div>
 
                 <!-- ===== BÁSICO ===== -->
@@ -302,15 +289,6 @@
                     <span class="text-base font-bold text-gray-900">Total</span>
                     <span class="text-xl font-extrabold text-blue-600">${{bill.total_recibo_mxn}}</span>
                 </div>
-
-                <!-- Download PDF button -->
-                <button class="w-full mt-5 flex items-center justify-center gap-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl px-4 py-2.5 hover:bg-gray-50 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                        <path fill-rule="evenodd" d="M12 5.25a.75.75 0 0 1 .75.75v5.551l1.774-2.158a.75.75 0 1 1 1.452.588l-2.5 3.038a.75.75 0 0 1-1.452 0l-2.5-3.038a.75.75 0 0 1 1.452-.588L11.25 11.551V6a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
-                        <path fill-rule="evenodd" d="M5.5 3.75a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-13a2 2 0 0 0-2-2h-13Zm6.5 13.5a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-1.5 0v10.5c0 .414.336.75.75.75Zm5.25-8.25a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-1.5 0v-7.5c0-.414.336-.75.75-.75ZM6 10.5a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V10.5Z" clip-rule="evenodd" />
-                    </svg>
-                    Descargar PDF
-                </button>
             </div>
         </div>
     </section>

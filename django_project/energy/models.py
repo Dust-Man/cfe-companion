@@ -127,9 +127,25 @@ class Bill(models.Model):
         return (self.subtotal_energia * Decimal('0.16')).quantize(Decimal('0.01'))
 
     @property
-    def dap(self):
-        """DAP (Alumbrado público) - estimado como 5% del subtotal."""
-        return (self.subtotal_energia * Decimal('0.05')).quantize(Decimal('0.01'))
+    def precio_basico(self):
+        """Precio unitario del escalón básico."""
+        if self.consumo_basico and self.subtotal_basico_mxn:
+            return (self.subtotal_basico_mxn / self.consumo_basico).quantize(Decimal('0.01'))
+        return Decimal('0.00')
+
+    @property
+    def precio_intermedio(self):
+        """Precio unitario del escalón intermedio."""
+        if self.consumo_intermedio and self.subtotal_intermedio_mxn:
+            return (self.subtotal_intermedio_mxn / self.consumo_intermedio).quantize(Decimal('0.01'))
+        return Decimal('0.00')
+
+    @property
+    def precio_excedente(self):
+        """Precio unitario del escalón excedente."""
+        if self.consumo_excedente and self.subtotal_excedente_mxn:
+            return (self.subtotal_excedente_mxn / self.consumo_excedente).quantize(Decimal('0.01'))
+        return Decimal('0.00')
 
 
 class Survey(models.Model):

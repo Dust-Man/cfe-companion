@@ -165,11 +165,25 @@ def dashboard(request, bill_id):
     """Muestra un dashboard con métricas clave del recibo."""
     bill = get_object_or_404(Bill, id=bill_id)
     
-    # Calculate percentages for progress bars
+    # Calculate stacked percentages for progress bars
+    # Basic bar is 100% only when consumption exceeds basic tier (goes to intermediate)
     total_consumo = bill.consumo_kwh
-    basico_pct = (bill.consumo_basico / total_consumo * 100) if total_consumo > 0 else 0
-    intermedio_pct = (bill.consumo_intermedio / total_consumo * 100) if total_consumo > 0 else 0
-    excedente_pct = (bill.consumo_excedente / total_consumo * 100) if total_consumo > 0 else 0
+    
+    if bill.consumo_excedente > 0:
+        # When there's excess consumption, basic and intermediate tiers are 100% full
+        basico_pct = 100.0
+        intermedio_pct = 100.0
+        excedente_pct = (bill.consumo_excedente / total_consumo * 100) if total_consumo > 0 else 0
+    elif bill.consumo_intermedio > 0:
+        # Has intermediate consumption but no excess: basic is 100%, intermediate shows actual %
+        basico_pct = 100.0
+        intermedio_pct = (bill.consumo_intermedio / 130 * 100) if bill.consumo_intermedio > 0 else 0  # Max intermediate is 130 kWh
+        excedente_pct = 0
+    else:
+        # Only basic consumption: show actual percentage of basic tier
+        basico_pct = (bill.consumo_basico / 150 * 100) if bill.consumo_basico > 0 else 0  # Max basic is 150 kWh
+        intermedio_pct = 0
+        excedente_pct = 0
     
     context = {
         'bill': bill,
