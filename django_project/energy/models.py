@@ -2,6 +2,7 @@
 Models for the Electric Assistant MVP.
 """
 
+from decimal import Decimal
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -73,6 +74,62 @@ class Bill(models.Model):
     def dias_periodo(self):
         """Retorna días del periodo de facturación."""
         return (self.periodo_fin - self.periodo_inicio).days
+
+    @property
+    def consumo_basico(self):
+        """Consumo en rango básico."""
+        return self.periodo_basico_kwh or 0
+
+    @property
+    def consumo_intermedio(self):
+        """Consumo en rango intermedio."""
+        return self.periodo_intermedio_kwh or 0
+
+    @property
+    def consumo_excedente(self):
+        """Consumo en rango excedente."""
+        return self.periodo_excedente_kwh or 0
+
+    @property
+    def precio_unitario(self):
+        """Precio unitario promedio."""
+        if self.consumo_kwh and self.total_recibo_mxn:
+            return (self.total_recibo_mxn / self.consumo_kwh).quantize(Decimal('0.01'))
+        return Decimal('0.00')
+
+    @property
+    def subsidio(self):
+        """Subsidio aplicado."""
+        return self.subsidio_mxn or Decimal('0.00')
+
+    @property
+    def demanda_max(self):
+        """Demanda máxima (estimada como consumo diario promedio)."""
+        if self.dias_periodo() > 0:
+            return Decimal(self.consumo_kwh / self.dias_periodo()).quantize(Decimal('0.1'))
+        return Decimal('0.0')
+
+    @property
+    def subtotal_energia(self):
+        """Subtotal de energía."""
+        subtotal = Decimal('0.00')
+        if self.subtotal_basico_mxn:
+            subtotal += self.subtotal_basico_mxn
+        if self.subtotal_intermedio_mxn:
+            subtotal += self.subtotal_intermedio_mxn
+        if self.subtotal_excedente_mxn:
+            subtotal += self.subtotal_excedente_mxn
+        return subtotal
+
+    @property
+    def iva(self):
+        """IVA calculado (16% del subtotal de energía)."""
+        return (self.subtotal_energia * Decimal('0.16')).quantize(Decimal('0.01'))
+
+    @property
+    def dap(self):
+        """DAP (Alumbrado público) - estimado como 5% del subtotal."""
+        return (self.subtotal_energia * Decimal('0.05')).quantize(Decimal('0.01'))
 
 
 class Survey(models.Model):

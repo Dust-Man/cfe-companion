@@ -4,6 +4,7 @@ Creates two example bills with surveys and pre-computed analysis.
 """
 
 from datetime import date, timedelta
+from decimal import Decimal
 from django.core.management.base import BaseCommand
 from energy.models import Bill, Survey, AnalysisResult
 from energy.services.calculations import compute_cost_mxn, compute_co2e_kg, compute_breakdown_and_recs
@@ -25,7 +26,14 @@ class Command(BaseCommand):
             periodo_inicio=date.today() - timedelta(days=60),
             periodo_fin=date.today(),
             consumo_kwh=280,
-            total_recibo_mxn=None,
+            total_recibo_mxn=Decimal('245.00'),  # Estimated total
+            periodo_basico_kwh=150,
+            periodo_intermedio_kwh=130,
+            periodo_excedente_kwh=0,
+            subtotal_basico_mxn=Decimal('147.00'),
+            subtotal_intermedio_mxn=Decimal('154.70'),
+            subtotal_excedente_mxn=Decimal('0.00'),
+            subsidio_mxn=Decimal('25.00'),
             is_demo=True
         )
         
@@ -71,7 +79,14 @@ class Command(BaseCommand):
             periodo_inicio=date.today() - timedelta(days=60),
             periodo_fin=date.today(),
             consumo_kwh=800,
-            total_recibo_mxn=None,
+            total_recibo_mxn=Decimal('3200.00'),  # Estimated total for DAC
+            periodo_basico_kwh=150,
+            periodo_intermedio_kwh=130,
+            periodo_excedente_kwh=520,
+            subtotal_basico_mxn=Decimal('147.00'),
+            subtotal_intermedio_mxn=Decimal('154.70'),
+            subtotal_excedente_mxn=Decimal('1824.00'),
+            subsidio_mxn=Decimal('0.00'),  # DAC typically has no subsidy
             is_demo=True
         )
         

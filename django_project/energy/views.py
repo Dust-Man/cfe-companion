@@ -164,8 +164,18 @@ def results(request, bill_id):
 def dashboard(request, bill_id):
     """Muestra un dashboard con métricas clave del recibo."""
     bill = get_object_or_404(Bill, id=bill_id)
+    
+    # Calculate percentages for progress bars
+    total_consumo = bill.consumo_kwh
+    basico_pct = (bill.consumo_basico / total_consumo * 100) if total_consumo > 0 else 0
+    intermedio_pct = (bill.consumo_intermedio / total_consumo * 100) if total_consumo > 0 else 0
+    excedente_pct = (bill.consumo_excedente / total_consumo * 100) if total_consumo > 0 else 0
+    
     context = {
         'bill': bill,
+        'basico_pct': basico_pct,
+        'intermedio_pct': intermedio_pct,
+        'excedente_pct': excedente_pct,
     }
     
     return render(request, 'energy/dashboard.html', context)
