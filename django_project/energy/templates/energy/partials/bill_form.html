@@ -356,5 +356,22 @@
         // Reset el input de archivo OCR para permitir resubir
         fileInput.value = '';
     });
+
+    // ── Loading overlay para submit del formulario ──
+    const billForm = document.querySelector('form[hx-post="/bill/"]');
+    const overlay = document.getElementById('loading-overlay');
+
+    if (billForm && overlay) {
+        billForm.addEventListener('htmx:beforeRequest', function() {
+            // Cambiar el texto del overlay para el bill
+            const overlayTitle = overlay.querySelector('h3');
+            const overlayText = overlay.querySelector('p');
+            if (overlayTitle) overlayTitle.textContent = 'Procesando tu recibo';
+            if (overlayText) overlayText.textContent = 'Estamos analizando los datos de tu consumo...';
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        });
+    }
 })();
 </script>

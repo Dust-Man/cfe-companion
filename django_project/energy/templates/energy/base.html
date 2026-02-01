@@ -45,22 +45,34 @@
 
 <body class="bg-gray-50 min-h-screen">
 
-<!-- 
-    <header class="navbar bg-blue-900 text-white shadow-sm">
-        <div class="flex-4">
-            <a class="" href="/">
-                 <img class="h-17" src="{% static 'logo.png' %}" alt="">
-            </a>
-        </div>
-       
-        <div class="flex-1 font-bold">
-            <ul class="menu menu-horizontal px-1">
-                <li><a href="/" class="text-lg">Inicio</a></li>
-                <li><a href="/history/"  class="text-lg">Historial</a></li>
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand -->
+                <a href="/" class="flex items-center gap-2 group">
+                    <div class="w-9 h-9 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-gray-800">EnergyWise</span>
+                </a>
 
-            </ul>
+                <!-- Navigation -->
+                <nav class="flex items-center gap-1">
+                    <a href="/" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        Inicio
+                    </a>
+                    <a href="/history/" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        Historial
+                    </a>
+                    <a href="/new/" class="ml-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm">
+                        + Nuevo Recibo
+                    </a>
+                </nav>
+            </div>
         </div>
-    </header> -->
+    </header>
 
     <!-- Main Content -->
     <main class="max-w-6xl mx-auto px-4 py-8">

@@ -201,7 +201,7 @@ def new_bill(request):
 
 @require_http_methods(["POST"])
 def create_bill(request):
-    """Crea el recibo y avanza a la nueva encuesta."""
+    """Crea el recibo y redirige al dashboard."""
     form = BillForm(request.POST, request.FILES)
 
     if form.is_valid():
@@ -213,11 +213,12 @@ def create_bill(request):
         request.session['bill_history'] = [bill.id] + request.session['bill_history'][:4]
         request.session.modified = True
 
-        # Mostrar la nueva encuesta
-        context = {**SURVEY_CHOICES, 'bill': bill, 'step': 2, 'total_steps': 3}
+        # Redirigir al dashboard
         if request.htmx:
-            return render(request, 'energy/partials/survey_form.html', context)
-        return redirect('energy:survey', bill_id=bill.id)
+            response = HttpResponse()
+            response['HX-Redirect'] = f'/dashboard/{bill.id}/'
+            return response
+        return redirect('energy:dashboard', bill_id=bill.id)
 
     # Errores
     context = {'form': form, 'step': 1, 'total_steps': 3}
