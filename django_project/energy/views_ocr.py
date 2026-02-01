@@ -70,7 +70,7 @@ def extract_bill(request):
             {"ok": False, "error": f"Error al procesar imagen: {str(exc)}"},
             status=500,
         )
-
+    print(datos)
     return JsonResponse({"ok": True, "data": datos})
 
 

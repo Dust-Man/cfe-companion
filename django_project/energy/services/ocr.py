@@ -10,6 +10,14 @@ Mapeo OCR → modelo Bill:
     subsidio           → subsidio_mxn
     multiplicador      → multiplicador
     periodo_facturado  → periodo_inicio / periodo_fin  (se parsea en _parse_periodo)
+
+Campos adicionales para el dashboard (escalones tarifarios):
+    periodo_basico_kwh      → periodo_basico_kwh
+    periodo_intermedio_kwh  → periodo_intermedio_kwh
+    periodo_excedente_kwh   → periodo_excedente_kwh
+    subtotal_basico_mxn     → subtotal_basico_mxn
+    subtotal_intermedio_mxn → subtotal_intermedio_mxn
+    subtotal_excedente_mxn  → subtotal_excedente_mxn
 """
 
 import base64
@@ -35,7 +43,13 @@ Devuelve ÚNICAMENTE JSON válido con esta estructura exacta:
   "tarifa": string,
   "subsidio": number,
   "multiplicador": number,
-  "periodo_facturado": string
+  "periodo_facturado": string,
+  "periodo_basico_kwh": number,
+  "periodo_intermedio_kwh": number,
+  "periodo_excedente_kwh": number,
+  "subtotal_basico_mxn": number,
+  "subtotal_intermedio_mxn": number,
+  "subtotal_excedente_mxn": number
 }
 
 Notas:
@@ -44,6 +58,13 @@ Notas:
 - "periodo_facturado" es el rango de fechas del periodo, ej: "01/12/2024 - 31/01/2025".
 - "subsidio" es el monto de subsidio en MXN si aparece en el recibo.
 - "multiplicador" es el factor del medidor (normalmente 1).
+- "periodo_basico_kwh", "periodo_intermedio_kwh", "periodo_excedente_kwh" son los kWh
+  consumidos en cada escalón tarifario. En el recibo aparecen en la tabla de cargos por
+  energía, en la columna de cantidad o "Total periodo" junto a las etiquetas
+  "Básico", "Intermedio" y "Excedente".
+- "subtotal_basico_mxn", "subtotal_intermedio_mxn", "subtotal_excedente_mxn" son los
+  importes en MXN de cada escalón (antes de IVA). Aparecen en la misma tabla, en la
+  columna de importe o "Subtotal", junto a las etiquetas correspondientes.
 - Si un campo no existe o no se puede leer, usa null.
 - No agregues texto extra, solo el JSON.
 """
@@ -112,8 +133,8 @@ class CFEVisionExtractor:
     def _map_to_bill_fields(self, raw: dict) -> dict:
         """
         Transforma la respuesta cruda de la API en un dict cuyas claves
-        coinciden con los campos de BillForm.  Incluye periodo_inicio y
-        periodo_fin parseados desde periodo_facturado.
+        coinciden con los campos de BillForm + campos extra del dashboard.
+        Incluye periodo_inicio y periodo_fin parseados desde periodo_facturado.
         """
         periodo_inicio, periodo_fin = _parse_periodo(raw.get("periodo_facturado"))
 
@@ -121,6 +142,7 @@ class CFEVisionExtractor:
         tarifa = _normalize_tarifa(tarifa_raw) if tarifa_raw else None
 
         return {
+            # --- Campos originales (BillForm) ---
             "consumo_kwh": _safe_int(raw.get("consumo_total")),
             "lectura_anterior": _safe_int(raw.get("lectura_anterior")),
             "lectura_actual": _safe_int(raw.get("lectura_actual")),
@@ -130,6 +152,14 @@ class CFEVisionExtractor:
             "multiplicador": _safe_int(raw.get("multiplicador")) or 1,
             "periodo_inicio": periodo_inicio,  # "YYYY-MM-DD" o None
             "periodo_fin": periodo_fin,        # "YYYY-MM-DD" o None
+
+            # --- Campos de escalones tarifarios (dashboard) ---
+            "periodo_basico_kwh": _safe_int(raw.get("periodo_basico_kwh")),
+            "periodo_intermedio_kwh": _safe_int(raw.get("periodo_intermedio_kwh")),
+            "periodo_excedente_kwh": _safe_int(raw.get("periodo_excedente_kwh")),
+            "subtotal_basico_mxn": _safe_float(raw.get("subtotal_basico_mxn")),
+            "subtotal_intermedio_mxn": _safe_float(raw.get("subtotal_intermedio_mxn")),
+            "subtotal_excedente_mxn": _safe_float(raw.get("subtotal_excedente_mxn")),
         }
 
 

@@ -100,16 +100,14 @@
             </summary>
 
             <div class="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
+                <!-- Bloque: total recibo + subsidio -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Total recibo -->
                     <div>
                         <label for="id_total_recibo_mxn" class="block text-sm font-medium text-gray-700 mb-1">
                             {{ form.total_recibo_mxn.label }}
                         </label>
                         {{ form.total_recibo_mxn }}
                     </div>
-
-                    <!-- Subsidio -->
                     <div>
                         <label for="id_subsidio_mxn" class="block text-sm font-medium text-gray-700 mb-1">
                             {{ form.subsidio_mxn.label }}
@@ -118,8 +116,8 @@
                     </div>
                 </div>
 
+                <!-- Bloque: lecturas + multiplicador -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Lecturas -->
                     <div>
                         <label for="id_lectura_anterior" class="block text-sm font-medium text-gray-700 mb-1">
                             {{ form.lectura_anterior.label }}
@@ -140,7 +138,54 @@
                     </div>
                 </div>
 
-                <!-- Archivo de evidencia (se pre-rellenará con la imagen del OCR si la usaste) -->
+                <!-- ============================================================
+                     Bloque: escalones tarifarios (se pre-rellenan por OCR)
+                     ============================================================ -->
+                <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📊 Escalones tarifarios</h4>
+                    <p class="text-xs text-gray-500 mb-3">
+                        Datos de la tabla "Cargos por energía" de tu recibo. Se completan automáticamente si subiste una foto.
+                    </p>
+
+                    <!-- Cabecera de la tabla -->
+                    <div class="grid grid-cols-4 gap-2 mb-2">
+                        <div></div>
+                        <div class="text-xs font-semibold text-gray-500 text-center">Básico</div>
+                        <div class="text-xs font-semibold text-gray-500 text-center">Intermedio</div>
+                        <div class="text-xs font-semibold text-gray-500 text-center">Excedente</div>
+                    </div>
+
+                    <!-- Fila: Total periodo (kWh) -->
+                    <div class="grid grid-cols-4 gap-2 mb-2 items-end">
+                        <div class="text-xs font-medium text-gray-600">Total periodo (kWh)</div>
+                        <div>
+                            {{ form.periodo_basico_kwh }}
+                        </div>
+                        <div>
+                            {{ form.periodo_intermedio_kwh }}
+                        </div>
+                        <div>
+                            {{ form.periodo_excedente_kwh }}
+                        </div>
+                    </div>
+
+                    <!-- Fila: Subtotal (MXN) -->
+                    <div class="grid grid-cols-4 gap-2 items-end">
+                        <div class="text-xs font-medium text-gray-600">Subtotal (MXN)</div>
+                        <div>
+                            {{ form.subtotal_basico_mxn }}
+                        </div>
+                        <div>
+                            {{ form.subtotal_intermedio_mxn }}
+                        </div>
+                        <div>
+                            {{ form.subtotal_excedente_mxn }}
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================ -->
+
+                <!-- Archivo de evidencia -->
                 <div>
                     <label for="id_evidencia_archivo" class="block text-sm font-medium text-gray-700 mb-1">
                         {{ form.evidencia_archivo.label }}
@@ -193,6 +238,7 @@
 
     // Mapeo: clave del JSON de respuesta → id del input en el formulario
     const CAMPO_MAP = {
+        // Campos originales
         consumo_kwh:      'id_consumo_kwh',
         periodo_inicio:   'id_periodo_inicio',
         periodo_fin:      'id_periodo_fin',
@@ -202,7 +248,21 @@
         lectura_anterior: 'id_lectura_anterior',
         lectura_actual:   'id_lectura_actual',
         multiplicador:    'id_multiplicador',
+        // Escalones tarifarios
+        periodo_basico_kwh:      'id_periodo_basico_kwh',
+        periodo_intermedio_kwh:  'id_periodo_intermedio_kwh',
+        periodo_excedente_kwh:   'id_periodo_excedente_kwh',
+        subtotal_basico_mxn:     'id_subtotal_basico_mxn',
+        subtotal_intermedio_mxn: 'id_subtotal_intermedio_mxn',
+        subtotal_excedente_mxn:  'id_subtotal_excedente_mxn',
     };
+
+    // Cualquiera de estas claves, si llega con valor, debe abrir el <details>
+    const OPTIONAL_KEYS = new Set([
+        'total_recibo_mxn', 'subsidio_mxn', 'lectura_anterior',
+        'periodo_basico_kwh', 'periodo_intermedio_kwh', 'periodo_excedente_kwh',
+        'subtotal_basico_mxn', 'subtotal_intermedio_mxn', 'subtotal_excedente_mxn',
+    ]);
 
     function showStatus(html, isError) {
         statusDiv.innerHTML = html;
@@ -240,6 +300,7 @@
 
             // --- Pre-rellenar campos ---
             let filled = 0;
+            let shouldOpenDetails = false;
             const data = json.data;
 
             for (const [key, inputId] of Object.entries(CAMPO_MAP)) {
@@ -251,10 +312,14 @@
 
                 el.value = valor;
                 filled++;
+
+                if (OPTIONAL_KEYS.has(key)) {
+                    shouldOpenDetails = true;
+                }
             }
 
             // Abrir detalles opcionales si se llenó algo ahí
-            if (data.total_recibo_mxn || data.subsidio_mxn || data.lectura_anterior) {
+            if (shouldOpenDetails) {
                 optDetails.setAttribute('open', '');
             }
 

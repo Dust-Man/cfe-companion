@@ -42,6 +42,20 @@ class Bill(models.Model):
         max_digits=10, decimal_places=2, null=True, blank=True
     )
     
+    # Escalones tarifarios (extraídos por OCR o ingresados manualmente)
+    periodo_basico_kwh = models.PositiveIntegerField(null=True, blank=True)
+    periodo_intermedio_kwh = models.PositiveIntegerField(null=True, blank=True)
+    periodo_excedente_kwh = models.PositiveIntegerField(null=True, blank=True)
+    subtotal_basico_mxn = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    subtotal_intermedio_mxn = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    subtotal_excedente_mxn = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    
     # Evidencia opcional
     evidencia_archivo = models.FileField(
         upload_to='evidencias/', null=True, blank=True
