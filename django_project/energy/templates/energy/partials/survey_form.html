@@ -9,6 +9,8 @@
           hx-post="/survey/{{ bill.id }}/"
           hx-target="#wizard"
           hx-swap="innerHTML"
+          hx-indicator="#submit-indicator"
+          hx-disabled-elt="#submit-btn"
           class="space-y-6">
         {% csrf_token %}
 
@@ -507,12 +509,13 @@
                 Volver
             </a>
             <button type="submit"
-                    class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">
-                Ver recomendaciones
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    id="submit-btn"
+                    class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <span id="submit-text">Ver recomendaciones</span>
+                <svg id="submit-arrow" class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
-                <span class="htmx-indicator ml-2">
+                <span id="submit-indicator" class="htmx-indicator ml-2">
                     <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
@@ -551,6 +554,17 @@
 .pill-sm {
     padding: 0.2rem 0.6rem;
     font-size: 0.75rem;
+}
+
+/* HTMX indicator styles */
+.htmx-indicator {
+    display: none;
+}
+.htmx-request .htmx-indicator {
+    display: inline-flex;
+}
+.htmx-request #submit-arrow {
+    display: none;
 }
 </style>
 
@@ -648,5 +662,16 @@
 
     // Initial state
     runAll();
+
+    // ── loading overlay ──
+    const overlay = document.getElementById('loading-overlay');
+
+    form.addEventListener('htmx:beforeRequest', function() {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    });
+
+    // No ocultamos el overlay en afterRequest porque hay una redirección
+    // El overlay se mantendrá visible hasta que la página cambie
 })();
 </script>

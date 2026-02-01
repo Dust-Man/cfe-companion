@@ -53,6 +53,7 @@ Devuelve ÚNICAMENTE JSON válido con esta estructura exacta:
 }
 
 Notas:
+- "consumo_total" es el consumo total en kWh del periodo facturado, esta inmediatamente abajo de Total periodo
 - "tarifa" es el código que aparece como "TARIFA 1", "TARIFA 1C", "TARIFA DAC", etc.
   Devuelve solo el código: "1", "1A", "1B", "1C", "1D", "1E", "1F" o "DAC".
 - "periodo_facturado" es el rango de fechas del periodo, ej: "01/12/2024 - 31/01/2025".

@@ -163,7 +163,7 @@ INSTRUCCIONES ESTRICTAS
    - costo_inversion_mxn: costo estimado de la inversión en MXN.
    - retorno_meses: costo_inversion_mxn / ahorro_mensual_mxn (redondeado al entero más cercano).
 7. Ordena por prioridad: la más impactante primero (prioridad: 1 = máxima).
-8. Los cálculos deben ser REALISTASS y conservative. No exageres los ahorros.
+8. Los cálculos deben ser REALISTAS, pero mostrar un ahorro significativo.
 
 ═══════════════════════════════════════
 FORMATO DE SALIDA
